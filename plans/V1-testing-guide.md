@@ -17,11 +17,11 @@ curl http://localhost:3000/health
 
 ---
 
-### 2. Create Admin User (requires admin - but we have no users yet!)
+### 2. Create Admin User (requires admin - but no users yet!)
 
-**Problem:** All user endpoints require admin authentication, but we have no admin user yet.
+**Problem:** All user endpoints require admin authentication, but no admin user yet.
 
-**Solution:** We need to manually create an admin user in MongoDB, or temporarily remove auth from the create user endpoint.
+**Solution:** Manually create an admin user in MongoDB, or temporarily remove auth from the create user endpoint.
 
 ---
 
@@ -42,7 +42,7 @@ curl http://localhost:3000/health
 
 ---
 
-## Option B: Quick Test Script (Recommended)
+## Option B: Quick Test Script
 
 Run these commands in sequence:
 
