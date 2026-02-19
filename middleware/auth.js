@@ -1,59 +1,57 @@
 /**
  * Authentication Middleware
- * V1 - Simple token-based authentication
- *
- * Note: This is intentionally naive for V1.
- * V2 will implement JWT and bcrypt.
+ * V2 - JWT-based authentication with role-based authorization
  */
 
 import User from "../models/User.js";
+import { verifyToken } from "../utils/jwt.js";
+import { AuthError, ForbiddenError } from "./errorHandler.js";
 
 /**
- * Extract user from Authorization header
- * V1 uses simple user ID as token
- *
+ * Extract and verify JWT from Authorization header
  * @param {string} authHeader - Authorization header value
- * @returns {Object|null} User object or null
+ * @returns {Object|null} Decoded token payload or null
  */
-const getUserFromToken = async (authHeader) => {
+const extractToken = (authHeader) => {
   if (!authHeader) {
     return null;
   }
 
-  // Expected format: "Bearer <userId>"
+  // Expected format: "Bearer <token>"
   const parts = authHeader.split(" ");
   if (parts.length !== 2 || parts[0] !== "Bearer") {
     return null;
   }
 
-  const userId = parts[1];
-
-  try {
-    const user = await User.findById(userId).select("-password");
-    return user;
-  } catch (error) {
-    return null;
-  }
+  const token = parts[1];
+  return verifyToken(token);
 };
 
 /**
  * Middleware to require authentication
- * Attaches user to request object if authenticated
+ * Verifies JWT and attaches user to request object
  */
 export const requireAuth = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  try {
+    const decoded = extractToken(req.headers.authorization);
 
-  const user = await getUserFromToken(authHeader);
+    if (!decoded) {
+      return next(new AuthError("Invalid or expired token"));
+    }
 
-  if (!user) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      message: "Authentication required. Please log in.",
-    });
+    // Fetch fresh user data from database
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return next(new AuthError("User no longer exists"));
+    }
+
+    req.user = user;
+    req.tokenPayload = decoded;
+    next();
+  } catch (error) {
+    next(new AuthError("Authentication failed"));
   }
-
-  req.user = user;
-  next();
 };
 
 /**
@@ -62,20 +60,64 @@ export const requireAuth = async (req, res, next) => {
  */
 export const requireAdmin = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      message: "Authentication required. Please log in.",
-    });
+    return next(new AuthError("Authentication required"));
   }
 
   if (req.user.role !== "admin") {
-    return res.status(403).json({
-      error: "Forbidden",
-      message: "Admin access required.",
-    });
+    return next(new ForbiddenError("Admin access required"));
   }
 
   next();
 };
 
-export default { requireAuth, requireAdmin };
+/**
+ * Middleware to require ownership or admin role
+ * User can access their own resources, or admin can access any
+ * @param {string} paramField - The request param field containing the user ID to check
+ */
+export const requireOwnershipOrAdmin = (paramField = "userId") => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return next(new AuthError("Authentication required"));
+    }
+
+    const requestedUserId = req.params[paramField];
+    const currentUserId = req.user._id.toString();
+    const isAdmin = req.user.role === "admin";
+
+    if (!isAdmin && currentUserId !== requestedUserId) {
+      return next(new ForbiddenError("You can only access your own resources"));
+    }
+
+    next();
+  };
+};
+
+/**
+ * Optional authentication middleware
+ * Attaches user if token is valid, but doesn't require it
+ */
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const decoded = extractToken(req.headers.authorization);
+
+    if (decoded) {
+      const user = await User.findById(decoded.id).select("-password");
+      if (user) {
+        req.user = user;
+        req.tokenPayload = decoded;
+      }
+    }
+  } catch (error) {
+    // Silently continue without user
+  }
+
+  next();
+};
+
+export default {
+  requireAuth,
+  requireAdmin,
+  requireOwnershipOrAdmin,
+  optionalAuth,
+};
