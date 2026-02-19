@@ -1,17 +1,17 @@
 /**
  * Feedback Controller
- * Handles business logic for feedback endpoints
+ * V2 - Handles business logic with centralized error handling
  */
 
 import Feedback from "../models/Feedback.js";
-import User from "../models/User.js";
+import { NotFoundError, ForbiddenError } from "../middleware/errorHandler.js";
 
 /**
  * Get all feedback
  * @route GET /api/feedback
  * @access Admin only
  */
-export const getAllFeedback = async (req, res) => {
+export const getAllFeedback = async (req, res, next) => {
   try {
     const feedback = await Feedback.find()
       .populate("userId", "email role")
@@ -22,10 +22,7 @@ export const getAllFeedback = async (req, res) => {
       feedback,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -34,7 +31,7 @@ export const getAllFeedback = async (req, res) => {
  * @route GET /api/feedback/:id
  * @access Admin only
  */
-export const getFeedbackById = async (req, res) => {
+export const getFeedbackById = async (req, res, next) => {
   try {
     const feedback = await Feedback.findById(req.params.id).populate(
       "userId",
@@ -42,24 +39,12 @@ export const getFeedbackById = async (req, res) => {
     );
 
     if (!feedback) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "Feedback not found",
-      });
+      return next(new NotFoundError("Feedback"));
     }
 
     res.json(feedback);
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid feedback ID format",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -68,7 +53,7 @@ export const getFeedbackById = async (req, res) => {
  * @route POST /api/feedback
  * @access User or Admin (requires authentication)
  */
-export const createFeedback = async (req, res) => {
+export const createFeedback = async (req, res, next) => {
   try {
     const { message, category, status } = req.body;
 
@@ -88,16 +73,7 @@ export const createFeedback = async (req, res) => {
 
     res.status(201).json(feedback);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: error.message,
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -106,7 +82,7 @@ export const createFeedback = async (req, res) => {
  * @route PATCH /api/feedback/:id
  * @access Admin only
  */
-export const updateFeedback = async (req, res) => {
+export const updateFeedback = async (req, res, next) => {
   try {
     const { message, category, status } = req.body;
 
@@ -123,30 +99,12 @@ export const updateFeedback = async (req, res) => {
     ).populate("userId", "email role");
 
     if (!feedback) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "Feedback not found",
-      });
+      return next(new NotFoundError("Feedback"));
     }
 
     res.json(feedback);
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid feedback ID format",
-      });
-    }
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: error.message,
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -155,15 +113,12 @@ export const updateFeedback = async (req, res) => {
  * @route DELETE /api/feedback/:id
  * @access Admin only
  */
-export const deleteFeedback = async (req, res) => {
+export const deleteFeedback = async (req, res, next) => {
   try {
     const feedback = await Feedback.findByIdAndDelete(req.params.id);
 
     if (!feedback) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "Feedback not found",
-      });
+      return next(new NotFoundError("Feedback"));
     }
 
     res.json({
@@ -171,16 +126,7 @@ export const deleteFeedback = async (req, res) => {
       id: req.params.id,
     });
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid feedback ID format",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -189,7 +135,7 @@ export const deleteFeedback = async (req, res) => {
  * @route GET /api/feedback/user/:userId
  * @access User (own feedback) or Admin
  */
-export const getFeedbackByUser = async (req, res) => {
+export const getFeedbackByUser = async (req, res, next) => {
   try {
     // Check if user is requesting their own feedback or is admin
     const requestedUserId = req.params.userId;
@@ -197,10 +143,7 @@ export const getFeedbackByUser = async (req, res) => {
     const isAdmin = req.user.role === "admin";
 
     if (!isAdmin && currentUserId !== requestedUserId) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: "You can only view your own feedback",
-      });
+      return next(new ForbiddenError("You can only view your own feedback"));
     }
 
     const feedback = await Feedback.find({ userId: requestedUserId })
@@ -212,16 +155,7 @@ export const getFeedbackByUser = async (req, res) => {
       feedback,
     });
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid user ID format",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 

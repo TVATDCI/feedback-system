@@ -1,16 +1,27 @@
 /**
  * User Controller
- * Handles business logic for user endpoints
+ * V2 - Handles business logic for user endpoints with JWT and bcrypt
  */
 
 import User from "../models/User.js";
+import {
+  hashPassword,
+  comparePassword,
+  isBcryptHash,
+} from "../utils/passwordHash.js";
+import { generateToken } from "../utils/jwt.js";
+import {
+  NotFoundError,
+  ConflictError,
+  AuthError,
+} from "../middleware/errorHandler.js";
 
 /**
  * Get all users
  * @route GET /api/user
  * @access Admin only
  */
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find().select("-password");
     res.json({
@@ -18,10 +29,7 @@ export const getAllUsers = async (req, res) => {
       users,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -30,29 +38,17 @@ export const getAllUsers = async (req, res) => {
  * @route GET /api/user/:id
  * @access Admin only
  */
-export const getUserById = async (req, res) => {
+export const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
 
     if (!user) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "User not found",
-      });
+      return next(new NotFoundError("User"));
     }
 
     res.json(user);
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid user ID format",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -61,23 +57,23 @@ export const getUserById = async (req, res) => {
  * @route POST /api/user
  * @access Admin only
  */
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
   try {
     const { email, password, role, isVerified } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({
-        error: "Conflict",
-        message: "User with this email already exists",
-      });
+      return next(new ConflictError("User with this email already exists"));
     }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
 
     // Create new user
     const user = await User.create({
       email,
-      password,
+      password: hashedPassword,
       role: role || "user",
       isVerified: isVerified || false,
     });
@@ -88,16 +84,7 @@ export const createUser = async (req, res) => {
 
     res.status(201).json(userResponse);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: error.message,
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -106,14 +93,16 @@ export const createUser = async (req, res) => {
  * @route PATCH /api/user/:id
  * @access Admin only
  */
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
   try {
     const { email, password, role, isVerified } = req.body;
 
     // Build update object with only provided fields
     const updateData = {};
     if (email !== undefined) updateData.email = email;
-    if (password !== undefined) updateData.password = password;
+    if (password !== undefined) {
+      updateData.password = await hashPassword(password);
+    }
     if (role !== undefined) updateData.role = role;
     if (isVerified !== undefined) updateData.isVerified = isVerified;
 
@@ -123,36 +112,12 @@ export const updateUser = async (req, res) => {
     }).select("-password");
 
     if (!user) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "User not found",
-      });
+      return next(new NotFoundError("User"));
     }
 
     res.json(user);
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid user ID format",
-      });
-    }
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: error.message,
-      });
-    }
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Conflict",
-        message: "Email already in use",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -161,15 +126,12 @@ export const updateUser = async (req, res) => {
  * @route DELETE /api/user/:id
  * @access Admin only
  */
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: "User not found",
-      });
+      return next(new NotFoundError("User"));
     }
 
     res.json({
@@ -177,16 +139,7 @@ export const deleteUser = async (req, res) => {
       id: req.params.id,
     });
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "Invalid user ID format",
-      });
-    }
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -195,7 +148,7 @@ export const deleteUser = async (req, res) => {
  * @route POST /api/user/login
  * @access Public
  */
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -203,24 +156,36 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({
-        error: "Unauthorized",
-        message: "Invalid email or password",
-      });
+      return next(new AuthError("Invalid email or password"));
     }
 
-    // Check password (plain text comparison for V1)
-    if (user.password !== password) {
-      return res.status(401).json({
-        error: "Unauthorized",
-        message: "Invalid email or password",
-      });
+    // Check if password is already hashed (for migration support)
+    let passwordMatches;
+    if (isBcryptHash(user.password)) {
+      // V2: Compare with bcrypt
+      passwordMatches = await comparePassword(password, user.password);
+    } else {
+      // V1 legacy: Plain text comparison (for migration)
+      passwordMatches = user.password === password;
+
+      // Lazy migration: Hash the password on successful login
+      if (passwordMatches) {
+        user.password = await hashPassword(password);
+        await user.save();
+      }
     }
 
-    // Return user info and simple token (user ID for V1)
+    if (!passwordMatches) {
+      return next(new AuthError("Invalid email or password"));
+    }
+
+    // Generate JWT token
+    const token = generateToken(user);
+
+    // Return user info and JWT token
     res.json({
       message: "Login successful",
-      token: user._id.toString(),
+      token,
       user: {
         id: user._id,
         email: user.email,
@@ -229,10 +194,26 @@ export const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-    });
+    next(error);
+  }
+};
+
+/**
+ * Get current user profile
+ * @route GET /api/user/me
+ * @access Authenticated user
+ */
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+
+    if (!user) {
+      return next(new NotFoundError("User"));
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -243,4 +224,5 @@ export default {
   updateUser,
   deleteUser,
   loginUser,
+  getCurrentUser,
 };
