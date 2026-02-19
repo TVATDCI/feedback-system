@@ -1,19 +1,30 @@
 {
   "name": "feedback-system",
-  "version": "1.0.0",
-  "description": "## Recap",
+  "version": "2.0.0",
+  "description": "Feedback System API - V2 with JWT authentication and security features",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "feedback",
+    "api",
+    "express",
+    "mongodb",
+    "jwt"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^17.3.1",
     "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4"
   }
 }
