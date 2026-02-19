@@ -373,7 +373,4 @@ echo "\n=== Tests Complete ==="
 
 ### Next Steps
 
-V2 is complete and tested. You can now:
-
-1. Merge V2 to main and push to GitHub
-2. Start planning V3 (service layer, repository pattern, logging, testing)
+Start planning V3 (service layer, repository pattern, logging, testing)
