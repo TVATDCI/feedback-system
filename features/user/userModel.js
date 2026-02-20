@@ -3,7 +3,7 @@
  * Defines the schema for user documents in MongoDB
  */
 
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,4 +36,4 @@ const userSchema = new mongoose.Schema(
 // Create and export the User model
 const User = mongoose.model("User", userSchema);
 
-export default User;
+module.exports = User;

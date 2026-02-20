@@ -3,8 +3,8 @@
  * V3 - Feature-based routes with validation and rate limiting
  */
 
-import express from "express";
-import {
+const express = require("express");
+const {
   getAllUsers,
   getUserById,
   createUser,
@@ -12,15 +12,18 @@ import {
   deleteUser,
   loginUser,
   getCurrentUser,
-} from "./userController.js";
-import { requireAuth, requireAdmin } from "../../middleware/auth.js";
-import {
+} = require("./userController.js");
+const { requireAuth, requireAdmin } = require("../../middleware/auth.js");
+const {
   validateCreateUser,
   validateLogin,
   validateUpdateUser,
   validateUserId,
-} from "../../middleware/validators.js";
-import { loginLimiter, generalLimiter } from "../../middleware/rateLimiter.js";
+} = require("../../middleware/validators.js");
+const {
+  loginLimiter,
+  generalLimiter,
+} = require("../../middleware/rateLimiter.js");
 
 const router = express.Router();
 
@@ -101,4 +104,4 @@ router.delete(
   deleteUser,
 );
 
-export default router;
+module.exports = router;

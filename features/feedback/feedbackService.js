@@ -3,11 +3,11 @@
  * Business logic for feedback operations
  */
 
-import {
+const {
   NotFoundError,
   ForbiddenError,
-} from "../../middleware/errorHandler.js";
-import logger from "../../utils/logger.js";
+} = require("../../middleware/errorHandler.js");
+const logger = require("../../utils/logger.js");
 
 class FeedbackService {
   constructor(feedbackRepository) {
@@ -138,4 +138,4 @@ class FeedbackService {
   }
 }
 
-export default FeedbackService;
+module.exports = FeedbackService;

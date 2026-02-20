@@ -3,7 +3,7 @@
  * Abstracts database operations for User model
  */
 
-import User from "./userModel.js";
+const User = require("./userModel.js");
 
 class UserRepository {
   constructor(model = User) {
@@ -89,4 +89,4 @@ class UserRepository {
   }
 }
 
-export default UserRepository;
+module.exports = UserRepository;

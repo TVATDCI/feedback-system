@@ -3,12 +3,8 @@
  * Winston-based logging with console and file transports
  */
 
-import winston from "winston";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const winston = require("winston");
+const path = require("path");
 
 // Log format
 const logFormat = winston.format.combine(
@@ -102,5 +98,8 @@ const logError = (error, req = null) => {
   logger.error("Application Error", errorInfo);
 };
 
-export { logger, logRequest, logError };
-export default logger;
+module.exports = {
+  logger,
+  logRequest,
+  logError,
+};

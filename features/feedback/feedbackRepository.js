@@ -3,7 +3,7 @@
  * Abstracts database operations for Feedback model
  */
 
-import Feedback from "./feedbackModel.js";
+const Feedback = require("./feedbackModel.js");
 
 class FeedbackRepository {
   constructor(model = Feedback) {
@@ -90,4 +90,4 @@ class FeedbackRepository {
   }
 }
 
-export default FeedbackRepository;
+module.exports = FeedbackRepository;

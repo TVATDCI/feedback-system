@@ -3,8 +3,8 @@
  * Uses express-validator for request validation
  */
 
-import { body, param, validationResult } from "express-validator";
-import { ValidationError } from "./errorHandler.js";
+const { body, param, validationResult } = require("express-validator");
+const { ValidationError } = require("./errorHandler.js");
 
 /**
  * Helper to check validation results
@@ -27,7 +27,7 @@ const validate = (req, res, next) => {
 /**
  * User registration validation
  */
-export const validateCreateUser = [
+const validateCreateUser = [
   body("email")
     .trim()
     .normalizeEmail()
@@ -58,7 +58,7 @@ export const validateCreateUser = [
 /**
  * User login validation
  */
-export const validateLogin = [
+const validateLogin = [
   body("email")
     .trim()
     .normalizeEmail()
@@ -73,7 +73,7 @@ export const validateLogin = [
 /**
  * User update validation
  */
-export const validateUpdateUser = [
+const validateUpdateUser = [
   param("id").isMongoId().withMessage("Invalid user ID format"),
 
   body("email")
@@ -108,7 +108,7 @@ export const validateUpdateUser = [
 /**
  * User ID param validation
  */
-export const validateUserId = [
+const validateUserId = [
   param("id").isMongoId().withMessage("Invalid user ID format"),
   validate,
 ];
@@ -116,7 +116,7 @@ export const validateUserId = [
 /**
  * Feedback creation validation
  */
-export const validateCreateFeedback = [
+const validateCreateFeedback = [
   body("message")
     .trim()
     .isLength({ min: 1, max: 2000 })
@@ -139,7 +139,7 @@ export const validateCreateFeedback = [
 /**
  * Feedback update validation
  */
-export const validateUpdateFeedback = [
+const validateUpdateFeedback = [
   param("id").isMongoId().withMessage("Invalid feedback ID format"),
 
   body("message")
@@ -165,12 +165,12 @@ export const validateUpdateFeedback = [
 /**
  * Feedback ID param validation
  */
-export const validateFeedbackId = [
+const validateFeedbackId = [
   param("id").isMongoId().withMessage("Invalid feedback ID format"),
   validate,
 ];
 
-export default {
+module.exports = {
   validateCreateUser,
   validateLogin,
   validateUpdateUser,

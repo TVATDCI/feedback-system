@@ -3,7 +3,7 @@
  * Defines the schema for feedback documents in MongoDB
  */
 
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const feedbackSchema = new mongoose.Schema(
   {
@@ -36,4 +36,4 @@ const feedbackSchema = new mongoose.Schema(
 // Create and export the Feedback model
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
-export default Feedback;
+module.exports = Feedback;

@@ -3,29 +3,29 @@
  * V3 - Feature-based routes with validation and rate limiting
  */
 
-import express from "express";
-import {
+const express = require("express");
+const {
   getAllFeedback,
   getFeedbackById,
   createFeedback,
   updateFeedback,
   deleteFeedback,
   getFeedbackByUser,
-} from "./feedbackController.js";
-import {
+} = require("./feedbackController.js");
+const {
   requireAuth,
   requireAdmin,
   requireOwnershipOrAdmin,
-} from "../../middleware/auth.js";
-import {
+} = require("../../middleware/auth.js");
+const {
   validateCreateFeedback,
   validateUpdateFeedback,
   validateFeedbackId,
-} from "../../middleware/validators.js";
-import {
+} = require("../../middleware/validators.js");
+const {
   generalLimiter,
   feedbackLimiter,
-} from "../../middleware/rateLimiter.js";
+} = require("../../middleware/rateLimiter.js");
 
 const router = express.Router();
 
@@ -104,4 +104,4 @@ router.delete(
   deleteFeedback,
 );
 
-export default router;
+module.exports = router;

@@ -3,14 +3,14 @@
  * Handles JWT token generation and verification
  */
 
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
 /**
  * Generate a JWT token for a user
  * @param {Object} user - User object with id, email, and role
  * @returns {string} JWT token
  */
-export const generateToken = (user) => {
+const generateToken = (user) => {
   const payload = {
     id: user._id || user.id,
     email: user.email,
@@ -27,7 +27,7 @@ export const generateToken = (user) => {
  * @param {string} token - JWT token to verify
  * @returns {Object|null} Decoded token payload or null if invalid
  */
-export const verifyToken = (token) => {
+const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
@@ -41,7 +41,7 @@ export const verifyToken = (token) => {
  * @param {string} token - JWT token to decode
  * @returns {Object|null} Decoded token payload or null if invalid format
  */
-export const decodeToken = (token) => {
+const decodeToken = (token) => {
   try {
     return jwt.decode(token);
   } catch (error) {
@@ -54,7 +54,7 @@ export const decodeToken = (token) => {
  * @param {string} expiresIn - JWT expiry string (e.g., "7d", "1h", "30m")
  * @returns {number} Expiry time in seconds
  */
-export const getTokenExpirySeconds = (
+const getTokenExpirySeconds = (
   expiresIn = process.env.JWT_EXPIRES_IN || "7d",
 ) => {
   const unit = expiresIn.slice(-1);
@@ -70,8 +70,9 @@ export const getTokenExpirySeconds = (
   return value * (multipliers[unit] || 1);
 };
 
-export default {
+module.exports = {
   generateToken,
   verifyToken,
   decodeToken,
+  getTokenExpirySeconds,
 };

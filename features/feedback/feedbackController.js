@@ -3,8 +3,8 @@
  * HTTP request handling for feedback endpoints
  */
 
-import FeedbackService from "./feedbackService.js";
-import FeedbackRepository from "./feedbackRepository.js";
+const FeedbackService = require("./feedbackService.js");
+const FeedbackRepository = require("./feedbackRepository.js");
 
 // Initialize repository and service
 const feedbackRepository = new FeedbackRepository();
@@ -15,7 +15,7 @@ const feedbackService = new FeedbackService(feedbackRepository);
  * @route GET /api/feedback
  * @access Admin only
  */
-export const getAllFeedback = async (req, res, next) => {
+const getAllFeedback = async (req, res, next) => {
   try {
     const result = await feedbackService.getAllFeedback();
     res.json(result);
@@ -29,7 +29,7 @@ export const getAllFeedback = async (req, res, next) => {
  * @route GET /api/feedback/:id
  * @access Admin only
  */
-export const getFeedbackById = async (req, res, next) => {
+const getFeedbackById = async (req, res, next) => {
   try {
     const feedback = await feedbackService.getFeedbackById(req.params.id);
     res.json(feedback);
@@ -43,7 +43,7 @@ export const getFeedbackById = async (req, res, next) => {
  * @route POST /api/feedback
  * @access User or Admin (requires authentication)
  */
-export const createFeedback = async (req, res, next) => {
+const createFeedback = async (req, res, next) => {
   try {
     const feedbackData = {
       ...req.body,
@@ -61,7 +61,7 @@ export const createFeedback = async (req, res, next) => {
  * @route PATCH /api/feedback/:id
  * @access Admin only
  */
-export const updateFeedback = async (req, res, next) => {
+const updateFeedback = async (req, res, next) => {
   try {
     const feedback = await feedbackService.updateFeedback(
       req.params.id,
@@ -78,7 +78,7 @@ export const updateFeedback = async (req, res, next) => {
  * @route DELETE /api/feedback/:id
  * @access Admin only
  */
-export const deleteFeedback = async (req, res, next) => {
+const deleteFeedback = async (req, res, next) => {
   try {
     const result = await feedbackService.deleteFeedback(req.params.id);
     res.json(result);
@@ -92,7 +92,7 @@ export const deleteFeedback = async (req, res, next) => {
  * @route GET /api/feedback/user/:userId
  * @access User (own feedback) or Admin
  */
-export const getFeedbackByUser = async (req, res, next) => {
+const getFeedbackByUser = async (req, res, next) => {
   try {
     const result = await feedbackService.getFeedbackByUser(
       req.params.userId,
@@ -104,7 +104,7 @@ export const getFeedbackByUser = async (req, res, next) => {
   }
 };
 
-export default {
+module.exports = {
   getAllFeedback,
   getFeedbackById,
   createFeedback,

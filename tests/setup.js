@@ -3,8 +3,8 @@
  * Configures test environment before each test
  */
 
-import { MongoMemoryServer } from "mongodb-memory-server";
-import mongoose from "mongoose";
+const { MongoMemoryServer } = require("mongodb-memory-server");
+const mongoose = require("mongoose");
 
 let mongoServer;
 

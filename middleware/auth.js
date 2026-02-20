@@ -3,9 +3,9 @@
  * V3 - JWT-based authentication with role-based authorization
  */
 
-import User from "../features/user/userModel.js";
-import { verifyToken } from "../utils/jwt.js";
-import { AuthError, ForbiddenError } from "./errorHandler.js";
+const User = require("../features/user/userModel.js");
+const { verifyToken } = require("../utils/jwt.js");
+const { AuthError, ForbiddenError } = require("./errorHandler.js");
 
 /**
  * Extract and verify JWT from Authorization header
@@ -31,7 +31,7 @@ const extractToken = (authHeader) => {
  * Middleware to require authentication
  * Verifies JWT and attaches user to request object
  */
-export const requireAuth = async (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   try {
     const decoded = extractToken(req.headers.authorization);
 
@@ -58,7 +58,7 @@ export const requireAuth = async (req, res, next) => {
  * Middleware to require admin role
  * Must be used after requireAuth middleware
  */
-export const requireAdmin = (req, res, next) => {
+const requireAdmin = (req, res, next) => {
   if (!req.user) {
     return next(new AuthError("Authentication required"));
   }
@@ -75,7 +75,7 @@ export const requireAdmin = (req, res, next) => {
  * User can access their own resources, or admin can access any
  * @param {string} paramField - The request param field containing the user ID to check
  */
-export const requireOwnershipOrAdmin = (paramField = "userId") => {
+const requireOwnershipOrAdmin = (paramField = "userId") => {
   return (req, res, next) => {
     if (!req.user) {
       return next(new AuthError("Authentication required"));
@@ -97,7 +97,7 @@ export const requireOwnershipOrAdmin = (paramField = "userId") => {
  * Optional authentication middleware
  * Attaches user if token is valid, but doesn't require it
  */
-export const optionalAuth = async (req, res, next) => {
+const optionalAuth = async (req, res, next) => {
   try {
     const decoded = extractToken(req.headers.authorization);
 
@@ -115,7 +115,7 @@ export const optionalAuth = async (req, res, next) => {
   next();
 };
 
-export default {
+module.exports = {
   requireAuth,
   requireAdmin,
   requireOwnershipOrAdmin,

@@ -2,15 +2,16 @@
  * User Service Unit Tests
  */
 
-import mongoose from "mongoose";
-import UserService from "../userService.js";
-import UserRepository from "../userRepository.js";
-import User from "../userModel.js";
-import {
+const mongoose = require("mongoose");
+const UserService = require("../userService.js");
+const UserRepository = require("../userRepository.js");
+const User = require("../userModel.js");
+const {
   ConflictError,
   AuthError,
   NotFoundError,
-} from "../../../middleware/errorHandler.js";
+} = require("../../../middleware/errorHandler.js");
+const { hashPassword } = require("../../../utils/passwordHash.js");
 
 // Mock dependencies
 jest.mock("../../../utils/logger.js", () => ({
@@ -40,7 +41,8 @@ describe("UserService", () => {
 
       expect(result.count).toBe(2);
       expect(result.users).toHaveLength(2);
-      expect(result.users[0]).not.toHaveProperty("password");
+      // Password should be excluded (undefined or not present)
+      expect(result.users[0].password).toBeUndefined();
     });
   });
 
@@ -55,7 +57,8 @@ describe("UserService", () => {
       const result = await userService.getUserById(user._id);
 
       expect(result.email).toBe("test@test.com");
-      expect(result).not.toHaveProperty("password");
+      // Password should be excluded (undefined or not present)
+      expect(result.password).toBeUndefined();
     });
 
     it("should throw NotFoundError for non-existent user", async () => {
@@ -105,7 +108,6 @@ describe("UserService", () => {
   describe("login", () => {
     it("should return token for valid credentials", async () => {
       // Create user with known password
-      const { hashPassword } = await import("../../../utils/passwordHash.js");
       const hashedPassword = await hashPassword("correctpassword");
 
       await User.create({
@@ -131,7 +133,6 @@ describe("UserService", () => {
     });
 
     it("should throw AuthError for invalid password", async () => {
-      const { hashPassword } = await import("../../../utils/passwordHash.js");
       const hashedPassword = await hashPassword("correctpassword");
 
       await User.create({

@@ -3,18 +3,18 @@
  * Business logic for user operations
  */
 
-import {
+const {
   hashPassword,
   comparePassword,
   isBcryptHash,
-} from "../../utils/passwordHash.js";
-import { generateToken } from "../../utils/jwt.js";
-import {
+} = require("../../utils/passwordHash.js");
+const { generateToken } = require("../../utils/jwt.js");
+const {
   ConflictError,
   AuthError,
   NotFoundError,
-} from "../../middleware/errorHandler.js";
-import logger from "../../utils/logger.js";
+} = require("../../middleware/errorHandler.js");
+const logger = require("../../utils/logger.js");
 
 class UserService {
   constructor(userRepository) {
@@ -201,4 +201,4 @@ class UserService {
   }
 }
 
-export default UserService;
+module.exports = UserService;

@@ -3,13 +3,13 @@
  * Protects API endpoints from abuse
  */
 
-import rateLimit from "express-rate-limit";
+const rateLimit = require("express-rate-limit");
 
 /**
  * General API rate limiter
  * 100 requests per 15 minutes per IP
  */
-export const generalLimiter = rateLimit({
+const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
   message: {
@@ -24,7 +24,7 @@ export const generalLimiter = rateLimit({
  * Login rate limiter (brute force protection)
  * 5 requests per 15 minutes per IP
  */
-export const loginLimiter = rateLimit({
+const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,
   message: {
@@ -40,7 +40,7 @@ export const loginLimiter = rateLimit({
  * Feedback creation rate limiter
  * 10 requests per minute per IP
  */
-export const feedbackLimiter = rateLimit({
+const feedbackLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: {
@@ -55,7 +55,7 @@ export const feedbackLimiter = rateLimit({
  * Strict rate limiter for sensitive operations
  * 3 requests per hour per IP
  */
-export const strictLimiter = rateLimit({
+const strictLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
   message: {
@@ -66,7 +66,7 @@ export const strictLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-export default {
+module.exports = {
   generalLimiter,
   loginLimiter,
   feedbackLimiter,
