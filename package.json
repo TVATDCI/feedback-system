@@ -1,20 +1,23 @@
 {
   "name": "feedback-system",
-  "version": "2.0.0",
-  "description": "Feedback System API - V2 with JWT authentication and security features",
+  "version": "3.0.0",
+  "description": "Feedback System API - V3 with service layer, repository pattern, and testing",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "feedback",
     "api",
     "express",
     "mongodb",
-    "jwt"
+    "jwt",
+    "service-layer",
+    "repository-pattern"
   ],
   "author": "",
   "license": "ISC",
@@ -25,6 +28,13 @@
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.8.4"
+    "mongoose": "^8.8.4",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.1.3",
+    "supertest": "^7.0.0"
   }
 }

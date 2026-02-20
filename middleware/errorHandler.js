@@ -6,7 +6,7 @@
 /**
  * Custom Application Error class
  */
-export class AppError extends Error {
+class AppError extends Error {
   constructor(message, statusCode = 500, errorCode = "INTERNAL_ERROR") {
     super(message);
     this.statusCode = statusCode;
@@ -19,7 +19,7 @@ export class AppError extends Error {
 /**
  * Validation Error class
  */
-export class ValidationError extends AppError {
+class ValidationError extends AppError {
   constructor(message, details = []) {
     super(message, 400, "VALIDATION_ERROR");
     this.details = details;
@@ -29,7 +29,7 @@ export class ValidationError extends AppError {
 /**
  * Authentication Error class
  */
-export class AuthError extends AppError {
+class AuthError extends AppError {
   constructor(message = "Authentication failed") {
     super(message, 401, "AUTH_ERROR");
   }
@@ -38,7 +38,7 @@ export class AuthError extends AppError {
 /**
  * Authorization Error class
  */
-export class ForbiddenError extends AppError {
+class ForbiddenError extends AppError {
   constructor(message = "Access denied") {
     super(message, 403, "FORBIDDEN");
   }
@@ -47,7 +47,7 @@ export class ForbiddenError extends AppError {
 /**
  * Not Found Error class
  */
-export class NotFoundError extends AppError {
+class NotFoundError extends AppError {
   constructor(resource = "Resource") {
     super(`${resource} not found`, 404, "NOT_FOUND");
   }
@@ -56,7 +56,7 @@ export class NotFoundError extends AppError {
 /**
  * Conflict Error class (e.g., duplicate entry)
  */
-export class ConflictError extends AppError {
+class ConflictError extends AppError {
   constructor(message = "Resource already exists") {
     super(message, 409, "CONFLICT");
   }
@@ -65,7 +65,7 @@ export class ConflictError extends AppError {
 /**
  * Global error handler middleware
  */
-export const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   // Log error for debugging
   console.error(`[Error] ${err.message}`);
   if (err.stack && process.env.NODE_ENV === "development") {
@@ -145,14 +145,14 @@ export const errorHandler = (err, req, res, next) => {
 /**
  * 404 handler for unknown routes
  */
-export const notFoundHandler = (req, res) => {
+const notFoundHandler = (req, res) => {
   res.status(404).json({
     error: "NOT_FOUND",
     message: `Route ${req.method} ${req.path} not found`,
   });
 };
 
-export default {
+module.exports = {
   AppError,
   ValidationError,
   AuthError,

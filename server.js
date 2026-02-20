@@ -1,18 +1,22 @@
 /**
  * Feedback System API Server
- * V2 - "About Realism"
+ * V3 - "Architectural Evolution"
  *
- * A REST API backend with JWT authentication, password hashing,
- * input validation, and centralized error handling.
+ * A REST API backend with service layer, repository pattern,
+ * comprehensive logging, and automated testing.
  */
 
-import express from "express";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-import userRoutes from "./routes/user.js";
-import feedbackRoutes from "./routes/feedback.js";
-import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
-import { generalLimiter } from "./middleware/rateLimiter.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db.js");
+const userRoutes = require("./features/user/userRoutes.js");
+const feedbackRoutes = require("./features/feedback/feedbackRoutes.js");
+const {
+  errorHandler,
+  notFoundHandler,
+} = require("./middleware/errorHandler.js");
+const { generalLimiter } = require("./middleware/rateLimiter.js");
+const { logger, logRequest } = require("./utils/logger.js");
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +30,9 @@ app.use(generalLimiter);
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Request logging middleware
+app.use(logRequest);
+
 // Connect to MongoDB
 connectDB();
 
@@ -38,12 +45,16 @@ app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     message: "Feedback System API is running",
-    version: "2.0.0",
+    version: "3.0.0",
+    architecture: "Service Layer + Repository Pattern",
     features: [
       "JWT Authentication",
       "Password Hashing",
       "Input Validation",
       "Rate Limiting",
+      "Winston Logging",
+      "Service Layer",
+      "Repository Pattern",
     ],
   });
 });
@@ -52,7 +63,8 @@ app.get("/health", (req, res) => {
 app.get("/", (req, res) => {
   res.json({
     name: "Feedback System API",
-    version: "2.0.0",
+    version: "3.0.0",
+    description: "Architectural Evolution - Service Layer & Repository Pattern",
     endpoints: {
       users: "/api/user",
       feedback: "/api/feedback",
@@ -71,7 +83,7 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`Version: 2.0.0 - "About Realism"`);
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+  logger.info(`Version: 3.0.0 - "Architectural Evolution"`);
 });
