@@ -191,6 +191,7 @@ class UserService {
     };
   }
 
+  /**
    * Get current user profile
    * @param {string} id - User ID
    * @returns {Promise<Object>} User profile
