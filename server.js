@@ -6,14 +6,17 @@
  * comprehensive logging, and automated testing.
  */
 
-import express from "express";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-import userRoutes from "./features/user/userRoutes.js";
-import feedbackRoutes from "./features/feedback/feedbackRoutes.js";
-import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
-import { generalLimiter } from "./middleware/rateLimiter.js";
-import { logger, logRequest } from "./utils/logger.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db.js");
+const userRoutes = require("./features/user/userRoutes.js");
+const feedbackRoutes = require("./features/feedback/feedbackRoutes.js");
+const {
+  errorHandler,
+  notFoundHandler,
+} = require("./middleware/errorHandler.js");
+const { generalLimiter } = require("./middleware/rateLimiter.js");
+const { logger, logRequest } = require("./utils/logger.js");
 
 // Load environment variables
 dotenv.config();

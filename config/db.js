@@ -3,7 +3,7 @@
  * Handles MongoDB connection using Mongoose
  */
 
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 /**
  * Connect to MongoDB
@@ -32,4 +32,4 @@ mongoose.connection.on("disconnected", () => {
   console.log("Mongoose disconnected from DB");
 });
 
-export default connectDB;
+module.exports = connectDB;

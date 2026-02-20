@@ -3,7 +3,6 @@
   "version": "3.0.0",
   "description": "Feedback System API - V3 with service layer, repository pattern, and testing",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
