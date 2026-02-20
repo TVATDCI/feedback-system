@@ -102,5 +102,6 @@ router.delete(
   requireAdmin,
   validateFeedbackId,
   deleteFeedback,
+);
 
 export default router;
