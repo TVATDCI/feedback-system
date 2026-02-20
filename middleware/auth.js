@@ -1,9 +1,9 @@
 /**
  * Authentication Middleware
- * V2 - JWT-based authentication with role-based authorization
+ * V3 - JWT-based authentication with role-based authorization
  */
 
-import User from "../models/User.js";
+import User from "../features/user/userModel.js";
 import { verifyToken } from "../utils/jwt.js";
 import { AuthError, ForbiddenError } from "./errorHandler.js";
 
