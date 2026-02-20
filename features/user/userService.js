@@ -14,7 +14,7 @@ const {
   AuthError,
   NotFoundError,
 } = require("../../middleware/errorHandler.js");
-const logger = require("../../utils/logger.js");
+const { logger } = require("../../utils/logger.js");
 
 class UserService {
   constructor(userRepository) {
